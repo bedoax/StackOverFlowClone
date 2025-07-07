@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StackOverFlowClone.Data;
+using StackOverFlowClone.Middleware;
 using StackOverFlowClone.Models.Entities;
 using StackOverFlowClone.Models.Role;
 using StackOverFlowClone.Services.Implementations;
@@ -92,6 +93,7 @@ namespace StackOverFlowClone
                     opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
                 });
             });
+            builder.Services.AddScoped<CustomExceptionHandlerMiddleware>();
             var app = builder.Build();
             app.UseRateLimiter(); // Enable rate limiting
 
@@ -105,7 +107,7 @@ namespace StackOverFlowClone
             app.UseHttpsRedirection();
 
             // Enable authentication & authorization
-            app.UseAuthentication(); // 🟢 هذا مهم جدًا
+            app.UseAuthentication(); 
             app.UseAuthorization();
 
             app.MapControllers();
