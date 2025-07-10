@@ -99,18 +99,19 @@ namespace StackOverFlowClone.Services.Implementations
             {
                 throw new ArgumentException("Page number and size must be greater than zero.");
             }
-            return await _context.Answers
-                .Where(a => a.QuestionId == questionId)
-                .Skip((pageNumber-1)*size)
-                .Take(size)
-                .Select(a => new AnswerDto
-                {
-                    Id = a.Id,
-                    Body = a.Body,
-                    UserId = a.UserId,
-                    QuestionId = a.QuestionId
-                })
-                .ToListAsync();
+          return  await _context.Answers
+               .Where(a => a.QuestionId == questionId)
+               .Skip((pageNumber - 1) * size)
+               .Take(size)
+               .Select(a => new AnswerDto
+               {
+                   Id = a.Id,
+                   Body = a.Body,
+                   UserId = a.UserId,
+                   QuestionId = a.QuestionId
+               })
+               .ToListAsync();
+
         }
 
         public async Task<int> GetAnswerVoteCountAsync(int answerId)

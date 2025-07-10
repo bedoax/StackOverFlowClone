@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using StackOverFlowClone.Models.DTOs.User;
 using StackOverFlowClone.Services.Interfaces;
 
-[Authorize(Roles = "Admin")]
+[Authorize(Policy = "CanManageRoles")] // 🔁 استبدال Roles ب Policy مناسبة
 [Route("api/admin")]
 [ApiController]
 public class AdminController : ControllerBase
@@ -14,7 +14,8 @@ public class AdminController : ControllerBase
     {
         _moderation = moderation;
     }
-    [Authorize(Roles = "Admin")]
+
+    [Authorize(Policy = "CanBanUser")]
     [HttpPut("ban/{userId}")]
     public async Task<IActionResult> BanUser(int userId, BanUserDto dto)
     {
@@ -22,28 +23,32 @@ public class AdminController : ControllerBase
         var result = await _moderation.BanUserAsync(userId, dto.BanReason, dto.BannedUntil);
         return result ? NoContent() : NotFound();
     }
-    [Authorize(Roles = "Admin")]
+
+    [Authorize(Policy = "CanBanUser")]
     [HttpPut("unban/{userId}")]
     public async Task<IActionResult> UnbanUser(int userId)
     {
         var result = await _moderation.UnbanUserAsync(userId);
         return result ? NoContent() : NotFound();
     }
-    [Authorize(Roles = "Admin")]
+
+    [Authorize(Policy = "CanManageRoles")]
     [HttpPut("promote/{userId}")]
     public async Task<IActionResult> PromoteToModerator(int userId)
     {
         var result = await _moderation.PromoteToModeratorAsync(userId);
         return result ? NoContent() : NotFound();
     }
-    [Authorize(Roles = "Admin")]
+
+    [Authorize(Policy = "CanManageRoles")]
     [HttpPut("demote/{userId}")]
     public async Task<IActionResult> DemoteFromModerator(int userId)
     {
         var result = await _moderation.DemoteFromModeratorAsync(userId);
         return result ? NoContent() : NotFound();
     }
-    [Authorize(Roles = "Admin")]
+
+    [Authorize(Policy = "CanViewReports")]
     [HttpGet("isbanned/{userId}")]
     public async Task<IActionResult> IsUserBanned(int userId)
     {

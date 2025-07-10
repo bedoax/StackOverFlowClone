@@ -14,9 +14,6 @@ namespace StackOverFlowClone.Middleware
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<CustomExceptionHandlerMiddleware> _logger;
 
-        /*        typescript
-                Copy
-            Edit*/
         public CustomExceptionHandlerMiddleware(IWebHostEnvironment env, ILogger<CustomExceptionHandlerMiddleware> logger)
         {
             _env = env;

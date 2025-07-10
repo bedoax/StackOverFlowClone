@@ -105,7 +105,6 @@ namespace StackOverFlowClone.Data
 
             // No foreign key constraints to Question or Answer for polymorphic design
 
-
             modelBuilder.Entity<Vote>()
                           .HasOne(v => v.Question)
                           .WithMany(q => q.Votes)
@@ -119,6 +118,11 @@ namespace StackOverFlowClone.Data
                 .HasForeignKey(v => v.AnswerId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(false);
+
+            modelBuilder.Entity<RefreshToken>()
+                .HasOne(rt => rt.User)
+                .WithMany(u => u.RefreshTokens)
+                .HasForeignKey(rt => rt.UserId);
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -134,6 +138,6 @@ namespace StackOverFlowClone.Data
         public DbSet<QuestionTag> QuestionTags { get; set; } // Add this line to include QuestionTag entity
         public DbSet<Bookmark> Bookmarks { get; set; } // Add this line to include Bookmark entity
 
-
+        public DbSet<RefreshToken> RefreshTokens { get; set; } // Add this line to include RefreshToken entity
     }
 }

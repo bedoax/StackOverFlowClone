@@ -2,9 +2,13 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using StackOverFlowClone.Data;
+using StackOverFlowClone.Models.DTOs.Auth;
 using StackOverFlowClone.Models.DTOs.LoginAndRegister;
 using StackOverFlowClone.Models.Entities;
 using StackOverFlowClone.Services.Interfaces;
+using System.Linq;
 using System.Security.Claims;
 
 namespace StackOverFlowClone.Controllers
@@ -16,11 +20,13 @@ namespace StackOverFlowClone.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly ITokenService _tokenService;
+        private readonly AppDbContext _context;
 
-        public AuthController(UserManager<User> userManager, ITokenService tokenService)
+        public AuthController(UserManager<User> userManager, ITokenService tokenService,AppDbContext context)
         {
             _userManager = userManager;
             _tokenService = tokenService;
+            _context = context;
         }
 
         [HttpPost("register")]
@@ -46,9 +52,53 @@ namespace StackOverFlowClone.Controllers
             if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
                 return Unauthorized("Invalid credentials");
 
-            var token = _tokenService.GenerateToken(user); // تعديل هنا
+            var token = await _tokenService.GenerateTokensAsync(user); // تعديل هنا
+
+
+            var expiredTokens = _context.RefreshTokens
+            .Where(rt => rt.ExpiresAt < DateTime.UtcNow);
+
+            _context.RefreshTokens.RemoveRange(expiredTokens);
+            await _context.SaveChangesAsync();
 
             return Ok(new { token });
+        }
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto model)
+        {
+            var principal = _tokenService.GetPrincipalFromExpiredToken(model.AccessToken);
+            if (principal == null)
+                return Unauthorized("Invalid access token");
+
+            var userId = principal.FindFirstValue("UserId");
+            if (userId == null)
+                return Unauthorized("Invalid access token");
+
+            var user = await _context.Users.Include(u => u.RefreshTokens)
+                                           .FirstOrDefaultAsync(u => u.Id.ToString() == userId);
+            var refreshToken = user.RefreshTokens
+                 .OrderByDescending(r => r.ExpiresAt)
+                 .FirstOrDefault(r => r.Token == model.RefreshToken);
+
+            if (user == null || refreshToken == null || refreshToken.ExpiresAt < DateTime.UtcNow)
+                    return Unauthorized("Invalid refresh token");
+
+            var role = principal.FindFirstValue(ClaimTypes.Role) ?? "user";
+            var permissions =   _tokenService.GetPermissionsForRole(role );
+            var newAccessToken = _tokenService.GenerateAccessToken(user, permissions,role);
+            var newRefreshToken = _tokenService.GenerateSecureRefreshToken();
+
+            // Save new refresh token
+            refreshToken.Token = newRefreshToken;
+            refreshToken.ExpiresAt = DateTime.UtcNow.AddDays(7);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                accessToken = newAccessToken,
+                refreshToken = newRefreshToken
+            });
+
         }
 
     }

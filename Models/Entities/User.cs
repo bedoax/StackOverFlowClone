@@ -16,7 +16,8 @@ namespace StackOverFlowClone.Models.Entities
         public ICollection<Comment> Comments { get; set; }
         public ICollection<Vote> Votes { get; set; }
         public ICollection<Bookmark> Bookmarks { get; set; } = new List<Bookmark>();
-
+        // to make design which if user can open from browser or phone etc
+        public ICollection<RefreshToken> RefreshTokens { get; set; }
     }
 
 }
