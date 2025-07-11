@@ -39,6 +39,7 @@ namespace StackOverFlowClone
             builder.Services.AddHangfireServer();
 
 
+            builder.Services.AddSignalR();
 
 
 
@@ -211,12 +212,12 @@ namespace StackOverFlowClone
             builder.Services.AddScoped<IBookmarkService, BookmarkService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<RefreshTokenCleaner>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<IMentionService, MentionService>();
+            //builder.Services.AddScoped<NotificationHub>();
+            builder.Services.AddScoped<CustomExceptionHandlerMiddleware>();
+            builder.Services.AddMemoryCache();
 
-            // Hangfire 
-            RecurringJob.AddOrUpdate<RefreshTokenCleaner>(
-                  "clean-expired-refresh-tokens",
-                  cleaner => cleaner.RemoveExpiredTokensAsync(),
-                  Cron.Hourly); // أو كل يوم: Cron.Daily
 
             // Swagger
             builder.Services.AddEndpointsApiExplorer();
@@ -244,7 +245,7 @@ namespace StackOverFlowClone
             builder.Services.AddHealthChecks()
                 .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), name: "SQL Server");
 
-            builder.Services.AddScoped<CustomExceptionHandlerMiddleware>();
+           
             var app = builder.Build();
             app.UseRateLimiter(); // Enable rate limiting
 
@@ -271,7 +272,14 @@ namespace StackOverFlowClone
                     await context.Response.WriteAsync(result);
                 }
             });
+
+            app.UseHangfireDashboard();
+            RecurringJob.AddOrUpdate<RefreshTokenCleaner>(
+             "clean-expired-refresh-tokens",
+             cleaner => cleaner.RemoveExpiredTokensAsync(),
+             Cron.Hourly);
             app.UseHangfireDashboard("/hangfire");
+            app.MapHub<NotificationHub>("/hubs/notification");
             app.UseMiddleware<CustomExceptionHandlerMiddleware>();
             app.UseHttpsRedirection();
 

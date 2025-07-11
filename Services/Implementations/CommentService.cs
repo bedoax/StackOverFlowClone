@@ -2,6 +2,7 @@
 using StackOverFlowClone.Data;
 using StackOverFlowClone.Models.DTOs.Comment;
 using StackOverFlowClone.Models.Entities;
+using StackOverFlowClone.Models.Enum;
 using StackOverFlowClone.Services.Interfaces;
 
 namespace StackOverFlowClone.Services.Implementations
@@ -9,10 +10,14 @@ namespace StackOverFlowClone.Services.Implementations
     public class CommentService : ICommentService
     {
         private readonly AppDbContext _context;
+        private readonly INotificationService _notificationService;
+        private readonly IMentionService _mentionService;
 
-        public CommentService(AppDbContext context)
+        public CommentService(AppDbContext context, INotificationService notificationService, IMentionService mentionService)
         {
             _context = context;
+            _notificationService = notificationService;
+            _mentionService = mentionService;
         }
 
         public async Task<CommentDto> CreateCommentForQuestionAsync(int questionId, CreateCommentDto commentDto, int userId)
@@ -35,9 +40,51 @@ namespace StackOverFlowClone.Services.Implementations
                 TargetId = questionId,
                 UserId = userId
             };
-
+            
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
+
+            // بعد حفظ الكومنت
+
+            // 1. استخراج كل الـ mentions
+            var mentionedUserIds = await _mentionService.HandleMentionsAsync(comment.Body);
+
+            // 2. إرسال إشعارات لكل اللي اتعملهم mention
+            foreach (var mentionedUserId in mentionedUserIds.Distinct())
+            {
+                if (mentionedUserId != userId) // ما تبعتش لنفس الشخص
+                {
+                    var notification = new Notification
+                    {
+                        UserId = mentionedUserId,
+                        Title = "You were mentioned in a comment",
+                        Message = $"{user.UserName} mentioned you in a comment.",
+                        Type = NotificationType.Mention,
+                        TargetId = question.Id,
+                        CreatedAt = DateTime.UtcNow,
+                        IsRead = false
+                    };
+                    await _notificationService.SendNotificationAsync(notification);
+                }
+            }
+
+            // 3. إشعار لصاحب السؤال لو مش هو اللي عمل الكومنت
+            if (question.UserId != userId && !mentionedUserIds.Contains(question.UserId))
+            {
+                var notification = new Notification
+                {
+                    UserId = question.UserId,
+                    Title = "New comment on your question",
+                    Message = $"{user.UserName} commented on your question.",
+                    Type = NotificationType.Comment,
+                    TargetId = question.Id,
+                    CreatedAt = DateTime.UtcNow,
+                    IsRead = false
+                };
+                await _notificationService.SendNotificationAsync(notification);
+            }
+
+
 
             var createdComment = await _context.Comments
                 .Include(c => c.User)
@@ -153,6 +200,7 @@ namespace StackOverFlowClone.Services.Implementations
                 UserId = comment.UserId
             };
         }
+
     }
 
 }

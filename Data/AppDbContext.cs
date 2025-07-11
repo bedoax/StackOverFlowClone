@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using StackOverFlowClone.Models.Entities;
 using StackOverFlowClone.Models.Role;
 
@@ -11,7 +12,15 @@ namespace StackOverFlowClone.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
-
+        public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
+        {
+            public AppDbContext CreateDbContext(string[] args)
+            {
+                var builder = new DbContextOptionsBuilder<AppDbContext>();
+                builder.UseSqlServer("Server=BEDOAX21\\SQLEXPRESS;Database=StackOverFlowClone;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True"); // Or your database provider
+                return new AppDbContext(builder.Options);
+            }
+        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -119,16 +128,29 @@ namespace StackOverFlowClone.Data
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(false);
 
+
+
             modelBuilder.Entity<RefreshToken>()
                 .HasOne(rt => rt.User)
                 .WithMany(u => u.RefreshTokens)
                 .HasForeignKey(rt => rt.UserId);
+
+
+            modelBuilder.Entity<Notification>()
+                         .HasKey(n => n.Id);
+            modelBuilder.Entity<Notification>()
+                         .HasOne(n => n.User)
+                         .WithMany(u => u.Notifications)
+                         .HasForeignKey(n => n.UserId)
+                         .OnDelete(DeleteBehavior.Cascade);
+
         }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
         }
-
+        public DbSet<Notification> Notifications { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<Answer> Answers { get; set; }
         public DbSet<Comment> Comments { get; set; }

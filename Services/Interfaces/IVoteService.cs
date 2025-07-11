@@ -1,4 +1,4 @@
-﻿using StackOverFlowClone.Models.Entities;
+﻿using StackOverFlowClone.Models.Enum;
 
 namespace StackOverFlowClone.Services.Interfaces
 {

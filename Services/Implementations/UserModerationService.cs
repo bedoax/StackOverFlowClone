@@ -5,6 +5,7 @@ using StackOverFlowClone.Models.Entities;
 using StackOverFlowClone.Models.DTOs.User;
 using StackOverFlowClone.Services.Interfaces;
 using StackOverFlowClone.Models.Role;
+using StackOverFlowClone.Models.Enum;
 
 public class UserModerationService : IUserModerationService
 {

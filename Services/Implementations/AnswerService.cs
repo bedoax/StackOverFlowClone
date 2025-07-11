@@ -4,16 +4,18 @@ using StackOverFlowClone.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using StackOverFlowClone.Data;
 using StackOverFlowClone.Models.DTOs.Vote;
+using StackOverFlowClone.Models.Enum;
 
 namespace StackOverFlowClone.Services.Implementations
 {
     public class AnswerService : IAnswerService
     {
         private readonly AppDbContext _context;
-
-        public AnswerService(AppDbContext context)
+        private readonly INotificationService _notificationService;
+        public AnswerService(AppDbContext context, INotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         public async Task<AnswerDto> CreateAnswerAsync(int questionId, CreateAnswerDto answerDto, int userId)
@@ -30,6 +32,19 @@ namespace StackOverFlowClone.Services.Implementations
 
             _context.Answers.Add(answer);
             await _context.SaveChangesAsync();
+            if (question != null && question.UserId != userId)
+            {
+                await _notificationService.SendNotificationAsync(new Notification
+                {
+                    UserId = question.UserId,
+                    Title = "New Answer on Your Question",
+                    Message = "Someone answered your question.",
+                    Type = NotificationType.Answer,
+                    TargetId = question.Id,
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
 
             return new AnswerDto
             {

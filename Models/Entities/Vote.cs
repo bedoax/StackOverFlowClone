@@ -1,4 +1,5 @@
 ﻿using StackOverFlowClone.Models.Entities;
+using StackOverFlowClone.Models.Enum;
 
 public class Vote
 {

@@ -1,4 +1,4 @@
-﻿namespace StackOverFlowClone.Models.Entities
+﻿namespace StackOverFlowClone.Models.Enum
 {
     public enum VoteType
     {

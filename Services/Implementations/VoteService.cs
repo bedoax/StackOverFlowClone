@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StackOverFlowClone.Data;
 using StackOverFlowClone.Models.DTOs.Vote;
-using StackOverFlowClone.Models.Entities;
+using StackOverFlowClone.Models.Enum;
 using StackOverFlowClone.Services.Interfaces;
 
 namespace StackOverFlowClone.Services.Implementations

@@ -1,5 +1,5 @@
 ﻿using Org.BouncyCastle.Bcpg;
-using StackOverFlowClone.Models.Entities;
+using StackOverFlowClone.Models.Enum;
 
 namespace StackOverFlowClone.Models.DTOs.Vote
 {
