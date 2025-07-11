@@ -62,6 +62,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize (Policy = "UpdateUserProfile")]
     public async Task<IActionResult> UpdateUserProfile(
         [FromBody] UpdateUserDto updateUserDto)
     {

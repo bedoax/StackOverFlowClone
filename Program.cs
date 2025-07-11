@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using StackOverFlowClone.Data;
+using StackOverFlowClone.Jobs.CleanerRefreshToken;
 using StackOverFlowClone.Middleware;
 using StackOverFlowClone.Models.Entities;
 using StackOverFlowClone.Models.Role;
@@ -33,6 +35,8 @@ namespace StackOverFlowClone
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
+            builder.Services.AddHangfire(x => x.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddHangfireServer();
 
 
 
@@ -79,6 +83,14 @@ namespace StackOverFlowClone
 
                 options.AddPolicy("CanDeleteOwnPost", policy =>
                     policy.RequireClaim("permission", "CanDeleteOwnPost"));
+                options.AddPolicy("CanDeleteOwnComment", policy =>
+                    policy.RequireClaim("permission", "CanDeleteOwnComment"));
+                options.AddPolicy("CanEditOwnComment", policy =>
+                    policy.RequireClaim("permission", "CanEditOwnComment"));
+                options.AddPolicy("UpdateUserProfile",policy =>
+                    policy.RequireClaim("permission", "UpdateUserProfile"));
+                options.AddPolicy("ChangeOwnPassword", policy =>
+                    policy.RequireClaim("permission", "ChangeOwnPassword"));
             });
             /*            string[] AllPermissions =
                                          {
@@ -198,6 +210,13 @@ namespace StackOverFlowClone
             builder.Services.AddScoped<ITagService, TagService>();
             builder.Services.AddScoped<IBookmarkService, BookmarkService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<RefreshTokenCleaner>();
+
+            // Hangfire 
+            RecurringJob.AddOrUpdate<RefreshTokenCleaner>(
+                  "clean-expired-refresh-tokens",
+                  cleaner => cleaner.RemoveExpiredTokensAsync(),
+                  Cron.Hourly); // أو كل يوم: Cron.Daily
 
             // Swagger
             builder.Services.AddEndpointsApiExplorer();
@@ -252,6 +271,7 @@ namespace StackOverFlowClone
                     await context.Response.WriteAsync(result);
                 }
             });
+            app.UseHangfireDashboard("/hangfire");
             app.UseMiddleware<CustomExceptionHandlerMiddleware>();
             app.UseHttpsRedirection();
 

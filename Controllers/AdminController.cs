@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using StackOverFlowClone.Models.DTOs.User;
 using StackOverFlowClone.Services.Interfaces;
 
-[Authorize(Policy = "CanManageRoles")] // 🔁 استبدال Roles ب Policy مناسبة
+[Authorize(Policy = "CanManagePermissions")] // 🔁 استبدال Roles ب Policy مناسبة
 [Route("api/admin")]
 [ApiController]
 public class AdminController : ControllerBase
@@ -32,7 +32,7 @@ public class AdminController : ControllerBase
         return result ? NoContent() : NotFound();
     }
 
-    [Authorize(Policy = "CanManageRoles")]
+    [Authorize(Policy = "CanManagePermissions")]
     [HttpPut("promote/{userId}")]
     public async Task<IActionResult> PromoteToModerator(int userId)
     {
@@ -40,7 +40,7 @@ public class AdminController : ControllerBase
         return result ? NoContent() : NotFound();
     }
 
-    [Authorize(Policy = "CanManageRoles")]
+    [Authorize(Policy = "CanManagePermissions")]
     [HttpPut("demote/{userId}")]
     public async Task<IActionResult> DemoteFromModerator(int userId)
     {

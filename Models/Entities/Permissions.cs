@@ -15,5 +15,11 @@
         public const string CanAccessAdminPanel = "CanAccessAdminPanel";
         public const string CanEditOwnPost = "CanEditOwnPost";
         public const string CanDeleteOwnPost = "CanDeleteOwnPost";
+        public const string CanViewProfile = "CanViewProfile";
+        public const string CanDeleteOwnComment = "CanDeleteOwnComment";
+        public const string CanEditOwnComment = "CanEditOwnComment";
+        public const string UpdateUserProfile = "UpdateUserProfile";
+        public const string ChangeOwnPassword = "ChangeOwnPassword";
+        public const string CanViewReports = "CanViewReports";
     }
 }

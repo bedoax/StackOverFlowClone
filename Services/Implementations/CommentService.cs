@@ -24,7 +24,10 @@ namespace StackOverFlowClone.Services.Implementations
             var user = await _context.Users.FindAsync(userId);
             if (user == null)
                 throw new ArgumentException($"User with ID {userId} not found.");
-
+            if (user.IsBanned)
+            {
+                throw new ArgumentException($"You are Banned , you can make a comment after {user.BannedUntil.Value.Month}/{user.BannedUntil.Value.Day}.");
+            }
             var comment = new Comment
             {
                 Body = commentDto.Body,
@@ -52,7 +55,10 @@ namespace StackOverFlowClone.Services.Implementations
             var user = await _context.Users.FindAsync(userId);
             if (user == null)
                 throw new ArgumentException($"User with ID {userId} not found.");
-
+            if (user.IsBanned)
+            {
+                throw new ArgumentException($"You are Banned , you can make a comment after {user.BannedUntil.Value.Month}/{user.BannedUntil.Value.Day}.");
+            }
             var comment = new Comment
             {
                 Body = commentDto.Body,
@@ -71,12 +77,20 @@ namespace StackOverFlowClone.Services.Implementations
             return MapToCommentDto(createdComment);
         }
 
-        public async Task<bool> UpdateCommentAsync(int commentId, UpdateCommentDto commentDto)
+        public async Task<bool> UpdateCommentAsync(int commentId, UpdateCommentDto commentDto, int userId)
         {
+
             var comment = await _context.Comments.FindAsync(commentId);
             if (comment == null)
                 return false;
 
+            if (comment.UserId != userId)
+                throw new UnauthorizedAccessException("You can only delete your own comments.");
+            var user = await _context.Users.FindAsync(userId);
+            if (user.IsBanned)
+            {
+                throw new ArgumentException($"You are Banned , you can make a comment after {user.BannedUntil.Value.Month}/{user.BannedUntil.Value.Day}.");
+            }
             comment.Body = commentDto.Body;
 
             try

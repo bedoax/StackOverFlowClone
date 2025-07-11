@@ -109,7 +109,8 @@ namespace StackOverFlowClone.Services.Implementations
                 Permissions.CanManageTags,
                 Permissions.CanViewAnalytics,
                 Permissions.CanManagePermissions,
-                Permissions.CanAccessAdminPanel
+                Permissions.CanAccessAdminPanel,
+                Permissions.CanViewReports
             },
                 Roles.Moderator => new List<string>
             {
@@ -129,7 +130,13 @@ namespace StackOverFlowClone.Services.Implementations
                 Permissions.CanComment,
                 Permissions.CanVote,
                 Permissions.CanEditOwnPost,
-                Permissions.CanDeleteOwnPost
+                Permissions.CanDeleteOwnPost,
+                Permissions.CanViewProfile,
+                Permissions.CanDeleteOwnComment,
+                Permissions.CanEditOwnComment,
+                Permissions.UpdateUserProfile,
+                Permissions.ChangeOwnPassword
+
             },
                 _ => new List<string>()
             };

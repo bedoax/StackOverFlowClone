@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using StackOverFlowClone.Data;
 using StackOverFlowClone.Models.DTOs.Question;
 using StackOverFlowClone.Models.Entities;
@@ -12,11 +13,12 @@ namespace StackOverFlowClone.Services.Implementations
     {
         private readonly AppDbContext _context;
         private readonly IVoteService _voteService;
-
-        public QuestionService(AppDbContext context, IVoteService voteService)
+        private readonly IMemoryCache _cache;
+        public QuestionService(AppDbContext context, IVoteService voteService,IMemoryCache cache)
         {
             _context = context;
             _voteService = voteService;
+            _cache = cache;
         }
 
         public async Task<QuestionDto> CreateQuestionAsync(CreateQuestionDto questionDto, int userId)
@@ -91,12 +93,28 @@ namespace StackOverFlowClone.Services.Implementations
 
         public async Task<IEnumerable<QuestionDto>> GetQuestionsByPapular(int pageNumber, int size)
         {
+            string cacheKey = $"popular_questions_page_{pageNumber}_size_{size}";
+
+            if (pageNumber == 1 && size == 10 && _cache.TryGetValue(cacheKey, out IEnumerable<QuestionDto> cachedQuestions))
+            {
+                return cachedQuestions;
+            }
             var query = _context.Questions
                 .OrderByDescending(q => _context.Votes.Count(v => v.QuestionId == q.Id && v.TargetType == TargetType.Question && v.VoteType == VoteType.UpVote))
                 .Skip((pageNumber - 1) * size)
                 .Take(size);
+            var result = await GetQuestionsBaseQuery(query);
 
-            return await GetQuestionsBaseQuery(query);
+            
+            if (pageNumber == 1 && size == 10)
+            {
+                var options = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
+
+                _cache.Set(cacheKey, result, options);
+            }
+
+            return result;
         }
 
         public async Task<IEnumerable<QuestionDto>> GetQuestionsByMostVoted(int pageNumber, int size)

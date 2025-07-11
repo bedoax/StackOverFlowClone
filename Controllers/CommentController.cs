@@ -16,7 +16,7 @@ namespace StackOverFlowClone.Controllers
         {
             _commentService = commentService;
         }
-        [Authorize(Roles = "user")]
+        //[Authorize(Roles = "user")]
         [HttpPost("question/{questionId}/comment")]
         public async Task<IActionResult> CreateCommentForQuestionAsync(int questionId, [FromBody] CreateCommentDto commentDto)
         {
@@ -24,7 +24,7 @@ namespace StackOverFlowClone.Controllers
             var result = await _commentService.CreateCommentForQuestionAsync(questionId, commentDto, userId);
             return result != null ? Ok(result) : BadRequest("Failed to create comment");
         }
-        [Authorize(Roles = "user")]
+        [Authorize(Policy = "CanComment")]
         [HttpPost("answer/{answerId}/comment")]
         public async Task<IActionResult> CreateCommentForAnswerAsync(int answerId, [FromBody] CreateCommentDto commentDto)
         {
@@ -46,14 +46,14 @@ namespace StackOverFlowClone.Controllers
             var comments = await _commentService.GetCommentForAnswerAsync(answerId);
             return Ok(comments);
         }
-        [Authorize(Roles = "user")]
+        [Authorize(Policy = "CanEditOwnComment")]
         [HttpPut("{commentId}")]
-        public async Task<IActionResult> UpdateCommentAsync(int commentId, [FromBody] UpdateCommentDto commentDto)
+        public async Task<IActionResult> UpdateCommentAsync(int commentId, [FromBody] UpdateCommentDto commentDto, int userId)
         {
-            var result = await _commentService.UpdateCommentAsync(commentId, commentDto);
+            var result = await _commentService.UpdateCommentAsync(commentId, commentDto,userId);
             return result ? Ok("Comment updated successfully") : NotFound("Comment not found");
         }
-        [Authorize(Roles = "user")]
+        [Authorize(Policy = "CanDeleteOwnComment")]
         [HttpDelete("{commentId}")]
         public async Task<IActionResult> DeleteCommentAsync(int commentId)
         {
