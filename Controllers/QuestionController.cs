@@ -108,7 +108,8 @@ public class QuestionController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateQuestion(int id, [FromBody] UpdateQuestionDto dto)
     {
-        var success = await _questionService.UpdateQuestionAsync(id, dto);
+        var userId = GetUserIdFromClaims();
+        var success = await _questionService.UpdateQuestionAsync(id, dto,userId);
         return success ? Ok("Updated") : NotFound();
     }
 

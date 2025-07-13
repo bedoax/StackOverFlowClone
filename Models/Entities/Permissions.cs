@@ -21,5 +21,7 @@
         public const string UpdateUserProfile = "UpdateUserProfile";
         public const string ChangeOwnPassword = "ChangeOwnPassword";
         public const string CanViewReports = "CanViewReports";
+        public const string CanBanUser = "CanBanUser";
+        public const string CanBookMark = "CanBookMark";
     }
 }

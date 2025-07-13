@@ -14,6 +14,7 @@ using StackOverFlowClone.Models.Entities;
 using StackOverFlowClone.Models.Role;
 using StackOverFlowClone.Services.Implementations;
 using StackOverFlowClone.Services.Interfaces;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading.RateLimiting;
@@ -46,53 +47,71 @@ namespace StackOverFlowClone
             //Permissions for Normal user and Moderator and Admin
             builder.Services.AddAuthorization(options =>
             {
-                options.AddPolicy("CanAskQuestion", policy =>
-                    policy.RequireClaim("permission", "CanAskQuestion"));
+                var permissions = typeof(Permissions)
+                    .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+                    .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
+                    .Select(fi => fi.GetRawConstantValue()!.ToString());
 
-                options.AddPolicy("CanAnswerQuestion", policy =>
-                    policy.RequireClaim("permission", "CanAnswerQuestion"));
-
-                options.AddPolicy("CanComment", policy =>
-                    policy.RequireClaim("permission", "CanComment"));
-
-                options.AddPolicy("CanVote", policy =>
-                    policy.RequireClaim("permission", "CanVote"));
-
-                options.AddPolicy("CanEditAnyPost", policy =>
-                    policy.RequireClaim("permission", "CanEditAnyPost"));
-
-                options.AddPolicy("CanDeleteAnyPost", policy =>
-                    policy.RequireClaim("permission", "CanDeleteAnyPost"));
-
-                options.AddPolicy("CanModerate", policy =>
-                    policy.RequireClaim("permission", "CanModerate"));
-
-                options.AddPolicy("CanManageTags", policy =>
-                    policy.RequireClaim("permission", "CanManageTags"));
-
-                options.AddPolicy("CanViewAnalytics", policy =>
-                    policy.RequireClaim("permission", "CanViewAnalytics"));
-
-                options.AddPolicy("CanManagePermissions", policy =>
-                    policy.RequireClaim("permission", "CanManagePermissions"));
-
-                options.AddPolicy("CanAccessAdminPanel", policy =>
-                    policy.RequireClaim("permission", "CanAccessAdminPanel"));
-
-                options.AddPolicy("CanEditOwnPost", policy =>
-                    policy.RequireClaim("permission", "CanEditOwnPost"));
-
-                options.AddPolicy("CanDeleteOwnPost", policy =>
-                    policy.RequireClaim("permission", "CanDeleteOwnPost"));
-                options.AddPolicy("CanDeleteOwnComment", policy =>
-                    policy.RequireClaim("permission", "CanDeleteOwnComment"));
-                options.AddPolicy("CanEditOwnComment", policy =>
-                    policy.RequireClaim("permission", "CanEditOwnComment"));
-                options.AddPolicy("UpdateUserProfile",policy =>
-                    policy.RequireClaim("permission", "UpdateUserProfile"));
-                options.AddPolicy("ChangeOwnPassword", policy =>
-                    policy.RequireClaim("permission", "ChangeOwnPassword"));
+                foreach (var permission in permissions)
+                {
+                    options.AddPolicy(permission, policy =>
+                        policy.RequireClaim("permission", permission));
+                }
             });
+            /*    builder.Services.AddAuthorization(options =>
+                {
+                    options.AddPolicy("CanAskQuestion", policy =>
+                        policy.RequireClaim("permission", "CanAskQuestion"));
+
+                    options.AddPolicy("CanAnswerQuestion", policy =>
+                        policy.RequireClaim("permission", "CanAnswerQuestion"));
+
+                    options.AddPolicy("CanComment", policy =>
+                        policy.RequireClaim("permission", "CanComment"));
+
+                    options.AddPolicy("CanVote", policy =>
+                        policy.RequireClaim("permission", "CanVote"));
+
+                    options.AddPolicy("CanEditAnyPost", policy =>
+                        policy.RequireClaim("permission", "CanEditAnyPost"));
+
+                    options.AddPolicy("CanDeleteAnyPost", policy =>
+                        policy.RequireClaim("permission", "CanDeleteAnyPost"));
+
+                    options.AddPolicy("CanModerate", policy =>
+                        policy.RequireClaim("permission", "CanModerate"));
+
+                    options.AddPolicy("CanManageTags", policy =>
+                        policy.RequireClaim("permission", "CanManageTags"));
+
+                    options.AddPolicy("CanViewAnalytics", policy =>
+                        policy.RequireClaim("permission", "CanViewAnalytics"));
+
+                    options.AddPolicy("CanManagePermissions", policy =>
+                        policy.RequireClaim("permission", "CanManagePermissions"));
+
+                    options.AddPolicy("CanAccessAdminPanel", policy =>
+                        policy.RequireClaim("permission", "CanAccessAdminPanel"));
+
+                    options.AddPolicy("CanEditOwnPost", policy =>
+                        policy.RequireClaim("permission", "CanEditOwnPost"));
+
+                    options.AddPolicy("CanDeleteOwnPost", policy =>
+                        policy.RequireClaim("permission", "CanDeleteOwnPost"));
+                    options.AddPolicy("CanDeleteOwnComment", policy =>
+                        policy.RequireClaim("permission", "CanDeleteOwnComment"));
+                    options.AddPolicy("CanEditOwnComment", policy =>
+                        policy.RequireClaim("permission", "CanEditOwnComment"));
+                    options.AddPolicy("UpdateUserProfile",policy =>
+                        policy.RequireClaim("permission", "UpdateUserProfile"));
+                    options.AddPolicy("ChangeOwnPassword", policy =>
+                        policy.RequireClaim("permission", "ChangeOwnPassword"));
+                    options.AddPolicy("CanBanUser", policy =>
+                        policy.RequireClaim("permission", "CanBanUser"));
+                    options.AddPolicy("CanBookMark", policy =>
+                        policy.RequireClaim("permission", "CanBookMark"));
+
+                });*/
             /*            string[] AllPermissions =
                                          {
                                          //  Moderator Permissions

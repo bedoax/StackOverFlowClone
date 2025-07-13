@@ -95,7 +95,7 @@ public class UserModerationService : IUserModerationService
 
     public async Task<UserActivityDto> GetUserActivityAsync(int userId)
     {
-        var user = await _context.Users.FindAsync(userId);
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);
         if (user == null) return null;
 
         var questionCount = await _context.Questions.CountAsync(q => q.UserId == userId);
@@ -112,6 +112,7 @@ public class UserModerationService : IUserModerationService
             Reputation = await GetReputationAsync(userId)
         };
     }
+
 
     public async Task<int> GetReputationAsync(int userId)
     {

@@ -19,7 +19,7 @@ namespace StackOverFlowClone.Services.Interfaces
 
         Task<IEnumerable<QuestionDto>> GetQuestionsWithVotesMoreThan(int numberOfVotes, int pageNumber, int size);
 
-        Task<bool> UpdateQuestionAsync(int questionId, UpdateQuestionDto questionDto);
+        Task<bool> UpdateQuestionAsync(int questionId, UpdateQuestionDto questionDto,int userId);
         Task<bool> DeleteQuestionAsync(int questionId, int userId);
         Task<bool> VoteQuestionAsync(int questionId, int userId, bool isUpvote);
         Task<int> GetQuestionVoteCountAsync(int questionId);

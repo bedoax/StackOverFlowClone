@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using StackOverFlowClone.Models.DTOs.User;
 using StackOverFlowClone.Services.Interfaces;
 
-[Authorize(Policy = "CanManagePermissions")] // 🔁 استبدال Roles ب Policy مناسبة
+ // 🔁 استبدال Roles ب Policy مناسبة
 [Route("api/admin")]
 [ApiController]
 public class AdminController : ControllerBase

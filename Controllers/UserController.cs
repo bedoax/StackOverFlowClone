@@ -18,11 +18,11 @@ public class UserController : ControllerBase
     private readonly IUserModerationService _userModerationService;
     private readonly AppDbContext _context;
 
-    public UserController(IUserAccountService userAccountService,IUserProfileService userProfileService,AppDbContext context)
+    public UserController(IUserAccountService userAccountService,IUserProfileService userProfileService,AppDbContext context, IUserModerationService userModerationService)
     {
         _userAccountService = userAccountService;
         _userProfileService = userProfileService;
-
+        _userModerationService = userModerationService;
         _context = context;
     }
 
@@ -91,21 +91,21 @@ public class UserController : ControllerBase
         return result ? NoContent() : BadRequest("Password change failed.");
     }
 
-    [Authorize(Roles = "user")]
+
     [HttpGet("{userId}/activity")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetUserActivity()
+    public async Task<IActionResult> GetUserActivity(int userId)
     {
-        int userId = GetUserIdFromClaims();
         if (userId <= 0)
             return BadRequest("Invalid user ID.");
 
         var activity = await _userModerationService.GetUserActivityAsync(userId);
         return activity == null ? NotFound() : Ok(activity);
     }
-    [Authorize(Roles = "user")]
+
+
     [HttpGet("{userId}/reputation")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

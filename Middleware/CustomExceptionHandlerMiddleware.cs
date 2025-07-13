@@ -59,7 +59,7 @@ namespace StackOverFlowClone.Middleware
             var errorId = Guid.NewGuid();
 
             _logger.LogError(exception,
-                "❌ Exception Caught | ErrorId: {ErrorId} | TraceId: {TraceId} | UserId: {UserId} | Endpoint: {Endpoint} | StatusCode: {StatusCode} | Type: {Type} | Message: {Message} | Request Path: {requestPath}",
+                "❌ Exception Caught | ErrorId: {ErrorId} | TraceId: {TraceId} | UserId: {UserId} | Endpoint: {Endpoint} | StatusCode: {StatusCode} | Type: {Type} | Message: {Message} | Request Path: {requestPath} | StackTrace",
                 errorId,
                 traceId,
                 userId,
@@ -67,7 +67,8 @@ namespace StackOverFlowClone.Middleware
                 statusCode,
                 exception.GetType().Name,
                 exception.Message,
-                requestPath);
+                requestPath,
+                exception.StackTrace);
 
             var errorResponse = new ErrorResponse
             {

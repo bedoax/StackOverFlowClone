@@ -72,7 +72,14 @@ namespace StackOverFlowClone.Services.Implementations
         {
             var answer = await _context.Answers.FindAsync(answerId);
             if (answer == null || answer.UserId != userId) return false;
-
+            var comments = await _context.Comments
+                .Where(c => c.TargetType == TargetType.Answer && c.TargetId == answerId)
+                .ToListAsync();
+            var votes = await _context.Votes.Where(v => v.AnswerId == answerId && v.TargetType == TargetType.Answer).ToListAsync();
+            // Remove associated comments and votes
+            _context.Comments.RemoveRange(comments);
+            _context.Votes.RemoveRange(votes);
+            // Remove the answer itself
             _context.Answers.Remove(answer);
             await _context.SaveChangesAsync();
 

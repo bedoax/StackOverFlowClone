@@ -193,12 +193,16 @@ namespace StackOverFlowClone.Services.Implementations
             return await GetQuestionsBaseQuery(query);
         }
 
-        public async Task<bool> UpdateQuestionAsync(int questionId, UpdateQuestionDto questionDto)
+        public async Task<bool> UpdateQuestionAsync(int questionId, UpdateQuestionDto questionDto, int userId)
         {
+
             var question = await _context.Questions.FindAsync(questionId);
             if (question == null)
                 return false;
-
+            if(question.UserId != userId)
+            {
+                return false;
+            }
             question.Title = questionDto.Title ?? question.Title;
             question.Body = questionDto.Body ?? question.Body;
 

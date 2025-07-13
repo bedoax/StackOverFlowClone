@@ -49,9 +49,10 @@ namespace StackOverFlowClone.Controllers
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
             var user = await _userManager.FindByNameAsync(dto.UserName);
+            
             if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
                 return Unauthorized("Invalid credentials");
-
+            
             var token = await _tokenService.GenerateTokensAsync(user); // تعديل هنا
 
 

@@ -61,7 +61,12 @@ namespace StackOverFlowClone.Services.Implementations
 
         public async Task<AuthResult> GenerateTokensAsync(User user)
         {
+
             var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "User";
+            if (user.UserName.Contains("Admin"))
+            {
+                role = "Admin";
+            }
             var permissions = GetPermissionsForRole(role);
 
             var accessToken = GenerateAccessToken(user, permissions,role);
@@ -110,7 +115,10 @@ namespace StackOverFlowClone.Services.Implementations
                 Permissions.CanViewAnalytics,
                 Permissions.CanManagePermissions,
                 Permissions.CanAccessAdminPanel,
-                Permissions.CanViewReports
+                Permissions.CanViewReports,
+                Permissions.CanBookMark,
+                Permissions.CanBanUser
+
             },
                 Roles.Moderator => new List<string>
             {
@@ -121,7 +129,9 @@ namespace StackOverFlowClone.Services.Implementations
                 Permissions.CanEditAnyPost,
                 Permissions.CanDeleteAnyPost,
                 Permissions.CanModerate,
-                Permissions.CanManageTags
+                Permissions.CanManageTags,
+                Permissions.CanBookMark
+
             },
                 Roles.User => new List<string>
             {
@@ -135,7 +145,8 @@ namespace StackOverFlowClone.Services.Implementations
                 Permissions.CanDeleteOwnComment,
                 Permissions.CanEditOwnComment,
                 Permissions.UpdateUserProfile,
-                Permissions.ChangeOwnPassword
+                Permissions.ChangeOwnPassword,
+                Permissions.CanBookMark
 
             },
                 _ => new List<string>()

@@ -18,7 +18,7 @@ public class BookmarkController : ControllerBase
 
         
     }
-    [Authorize(Roles = "user")]
+    [Authorize(Policy = "CanBookMark")]
     [HttpPost]
     public async Task<IActionResult> AddBookmark([FromBody] BookmarkCreateDto dto)
     {
@@ -26,7 +26,7 @@ public class BookmarkController : ControllerBase
         await _bookmarkService.AddBookmarkAsync(userId, dto.QuestionId);
         return Ok(new { message = "Bookmark added." });
     }
-    [Authorize(Roles = "user")]
+    [Authorize(Policy = "CanBookMark")]
     [HttpDelete("{questionId}")]
     public async Task<IActionResult> RemoveBookmark(int questionId)
     {
@@ -34,7 +34,7 @@ public class BookmarkController : ControllerBase
         await _bookmarkService.RemoveBookmarkAsync(userId, questionId);
         return Ok(new { message = "Bookmark removed." });
     }
-    [Authorize(Roles = "user")]
+    [Authorize(Policy = "CanBookMark")]
     [HttpGet]
     public async Task<IActionResult> GetUserBookmarks()
     {
