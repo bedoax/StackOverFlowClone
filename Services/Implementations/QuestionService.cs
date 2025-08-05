@@ -1,12 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using OpenAI.Chat;
+//using OpenAIChatENG;
 using StackOverFlowClone.Data;
+using StackOverFlowClone.Models.DTOs.Answer;
 using StackOverFlowClone.Models.DTOs.Question;
 using StackOverFlowClone.Models.Entities;
 using StackOverFlowClone.Models.Enum;
 using StackOverFlowClone.Services.Interfaces;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Reflection.Metadata;
 
 namespace StackOverFlowClone.Services.Implementations
 {
@@ -15,11 +22,18 @@ namespace StackOverFlowClone.Services.Implementations
         private readonly AppDbContext _context;
         private readonly IVoteService _voteService;
         private readonly IMemoryCache _cache;
-        public QuestionService(AppDbContext context, IVoteService voteService,IMemoryCache cache)
+        private readonly IAnswerService _answerService;
+        private readonly IConfiguration _config;
+        private HttpClient _httpClient;
+
+        public QuestionService(AppDbContext context, IVoteService voteService,IMemoryCache cache, IAnswerService answerService, IConfiguration config, HttpClient  httpClient)
         {
             _context = context;
             _voteService = voteService;
             _cache = cache;
+            _answerService = answerService;
+            _config = config;
+            _httpClient = httpClient;
         }
 
         public async Task<QuestionDto> CreateQuestionAsync(CreateQuestionDto questionDto, int userId)
@@ -39,8 +53,79 @@ namespace StackOverFlowClone.Services.Implementations
             await _context.Questions.AddAsync(question);
             await _context.SaveChangesAsync();
 
+            var chatGptResponse = await GetAnswerFromChatGptAsync(question.Body);
+
+            if (!string.IsNullOrWhiteSpace(chatGptResponse))
+            {
+                CreateAnswerDto answer = new CreateAnswerDto
+                {
+                    Body = chatGptResponse
+                };
+
+                // استخدم الـ _answerService لحفظ الإجابة بشكل رسمي
+                var savedAnswer = await _answerService.CreateAnswerAsync(question.Id, answer, userId);
+
+            }
+
+
             return await MapToQuestionDto(question);
+
+
+
         }
+
+        private async Task<string> GetAnswerFromChatGptAsync(string questionText)
+        {
+            var apiKey = _config["OpenAI:ApiKey"];
+            if (string.IsNullOrWhiteSpace(apiKey))
+                return "Missing API Key.";
+
+            var requestBody = new
+            {
+                model = "gpt-3.5-turbo", // يمكنك تغييره لاحقاً لـ gpt-4o بعد التأكد من دعم الحساب
+                messages = new[]
+                {
+            new { role = "user", content = questionText }
+        },
+                temperature = 0.7
+            };
+
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/chat/completions")
+            {
+                Headers = {
+            { "Authorization", $"Bearer {apiKey}" }
+        },
+                Content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json")
+            };
+
+            try
+            {
+                var response = await _httpClient.SendAsync(request);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    return $"OpenAI API Error: {response.StatusCode} - {error}";
+                }
+
+                var responseJson = await response.Content.ReadAsStringAsync();
+                using var doc = JsonDocument.Parse(responseJson);
+
+                return doc.RootElement
+                    .GetProperty("choices")[0]
+                    .GetProperty("message")
+                    .GetProperty("content")
+                    .GetString()
+                    .Trim().ToString();
+            }
+            catch (Exception ex)
+            {
+                return $"Exception when calling OpenAI: {ex.Message}";
+            }
+        }
+
+       
+
 
         private async Task<IEnumerable<QuestionDto>> GetQuestionsBaseQuery(IQueryable<Question> baseQuery)
         {

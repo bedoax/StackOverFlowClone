@@ -25,6 +25,8 @@ namespace StackOverFlowClone.Data
         {
             base.OnModelCreating(modelBuilder);
 
+
+
             modelBuilder.Entity<Bookmark>()
         .HasIndex(b => new { b.UserId, b.QuestionId })
         .IsUnique();

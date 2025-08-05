@@ -233,6 +233,7 @@ namespace StackOverFlowClone
             builder.Services.AddScoped<RefreshTokenCleaner>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<IMentionService, MentionService>();
+            builder.Services.AddScoped<HttpClient>();
             //builder.Services.AddScoped<NotificationHub>();
             builder.Services.AddScoped<CustomExceptionHandlerMiddleware>();
             builder.Services.AddMemoryCache();
