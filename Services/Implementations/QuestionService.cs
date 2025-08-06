@@ -24,9 +24,10 @@ namespace StackOverFlowClone.Services.Implementations
         private readonly IMemoryCache _cache;
         private readonly IAnswerService _answerService;
         private readonly IConfiguration _config;
+        private readonly GeminiService _geminiService;
         private HttpClient _httpClient;
 
-        public QuestionService(AppDbContext context, IVoteService voteService,IMemoryCache cache, IAnswerService answerService, IConfiguration config, HttpClient  httpClient)
+        public QuestionService(AppDbContext context, IVoteService voteService,IMemoryCache cache, IAnswerService answerService, IConfiguration config, HttpClient  httpClient,GeminiService geminiService)
         {
             _context = context;
             _voteService = voteService;
@@ -34,6 +35,7 @@ namespace StackOverFlowClone.Services.Implementations
             _answerService = answerService;
             _config = config;
             _httpClient = httpClient;
+            _geminiService = geminiService;
         }
 
         public async Task<QuestionDto> CreateQuestionAsync(CreateQuestionDto questionDto, int userId)
@@ -61,12 +63,30 @@ namespace StackOverFlowClone.Services.Implementations
                 {
                     Body = chatGptResponse
                 };
-
+                var chatGptAiId = int.Parse(_config["OpenAI:ChatGptAiId"]);
+                if(chatGptAiId < 0 )
+                {
+                                        throw new ArgumentException("Invalid ChatGPT AI ID in configuration.");
+                }
                 // استخدم الـ _answerService لحفظ الإجابة بشكل رسمي
-                var savedAnswer = await _answerService.CreateAnswerAsync(question.Id, answer, userId);
+                var savedAnswer = await _answerService.CreateAnswerAsync(question.Id, answer, chatGptAiId);
 
             }
-
+            var geminiResponse = await _geminiService.GetChatResponse(question.Body);
+            if (!string.IsNullOrWhiteSpace(geminiResponse))
+            {
+                CreateAnswerDto answer = new CreateAnswerDto
+                {
+                    Body = geminiResponse
+                };
+                var geminiAiId = int.Parse(_config["GeminiAiId"]);
+                if (geminiAiId < 0)
+                {
+                    throw new ArgumentException("Invalid ChatGPT AI ID in configuration.");
+                }
+                // استخدم الـ _answerService لحفظ الإجابة بشكل رسمي
+                var savedAnswer = await _answerService.CreateAnswerAsync(question.Id, answer, geminiAiId);
+            }
 
             return await MapToQuestionDto(question);
 

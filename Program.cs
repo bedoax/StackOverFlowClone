@@ -236,6 +236,7 @@ namespace StackOverFlowClone
             builder.Services.AddScoped<HttpClient>();
             //builder.Services.AddScoped<NotificationHub>();
             builder.Services.AddScoped<CustomExceptionHandlerMiddleware>();
+            builder.Services.AddScoped<GeminiService>();
             builder.Services.AddMemoryCache();
 
 

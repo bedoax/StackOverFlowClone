@@ -130,7 +130,9 @@ namespace StackOverFlowClone.Services.Implementations
                    Id = a.Id,
                    Body = a.Body,
                    UserId = a.UserId,
-                   QuestionId = a.QuestionId
+                   QuestionId = a.QuestionId,
+                   UserName = a.User.UserName,
+
                })
                .ToListAsync();
 
