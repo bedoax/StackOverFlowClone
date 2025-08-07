@@ -231,6 +231,7 @@ namespace StackOverFlowClone
             builder.Services.AddScoped<IBookmarkService, BookmarkService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<RefreshTokenCleaner>();
+            builder.Services.AddScoped<UserSettingsService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<IMentionService, MentionService>();
             builder.Services.AddScoped<HttpClient>();
