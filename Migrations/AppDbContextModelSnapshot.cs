@@ -271,6 +271,27 @@ namespace StackOverFlowClone.Migrations
                     b.ToTable("Notifications");
                 });
 
+            modelBuilder.Entity("StackOverFlowClone.Models.Entities.Otp", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OtpCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Otps");
+                });
+
             modelBuilder.Entity("StackOverFlowClone.Models.Entities.Question", b =>
                 {
                     b.Property<int>("Id")

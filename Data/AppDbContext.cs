@@ -146,6 +146,9 @@ namespace StackOverFlowClone.Data
                          .HasForeignKey(n => n.UserId)
                          .OnDelete(DeleteBehavior.Cascade);
 
+        
+            modelBuilder.Entity<Otp>()
+                .HasKey(o => o.Id);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -161,7 +164,7 @@ namespace StackOverFlowClone.Data
         public DbSet<Tag> Tags { get; set; }
         public DbSet<QuestionTag> QuestionTags { get; set; } // Add this line to include QuestionTag entity
         public DbSet<Bookmark> Bookmarks { get; set; } // Add this line to include Bookmark entity
-
+        public DbSet<Otp>Otps { get; set; } // Add this line to include Otp entity
         public DbSet<RefreshToken> RefreshTokens { get; set; } // Add this line to include RefreshToken entity
     }
 }
