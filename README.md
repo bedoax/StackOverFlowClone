@@ -13,7 +13,8 @@ A simplified, scalable ASP.NET Core Web API imitating key features of StackOverf
 - Health checks
 - File uploads (images)
 - Mentions (@username) system
-- Integrate Chatgpt and Gemini 
+- Integrate Chatgpt and Gemini
+- Clean Articture
 ---
 
 ## 📂 Table of Contents
