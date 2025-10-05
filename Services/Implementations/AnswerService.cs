@@ -21,6 +21,7 @@ namespace StackOverFlowClone.Services.Implementations
         public async Task<AnswerDto> CreateAnswerAsync(int questionId, CreateAnswerDto answerDto, int userId)
         {
             var question = await _context.Questions.FindAsync(questionId);
+            
             if (question == null) return null;
 
             var answer = new Answer

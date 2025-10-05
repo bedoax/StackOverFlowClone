@@ -179,11 +179,15 @@ namespace StackOverFlowClone.Services.Implementations
 
         public async Task<IEnumerable<QuestionDto>> GetAllQuestionsAsync(int pageNumber, int size)
         {
+/*            var questionUser = _context.Questions
+                .FromSqlInterpolated($"SELECT * FROM Questions WHERE Id = {7}")
+                .FirstOrDefault().Id;*/
+
             var query = _context.Questions
                 .OrderByDescending(q => q.Id)
                 .Skip((pageNumber - 1) * size)
                 .Take(size);
-
+            
             return await GetQuestionsBaseQuery(query);
         }
 
@@ -240,6 +244,12 @@ namespace StackOverFlowClone.Services.Implementations
                 .Include(q => q.Answers)
                 .Include(q => q.QuestionTags).ThenInclude(qt => qt.Tag)
                 .FirstOrDefaultAsync(q => q.Id == questionId);
+/*            var fullQuestion = _context.Questions
+                .FromSqlInterpolated($"EXEC GetFullQuestion @QuestionId = {questionId}")
+                .AsEnumerable()  // force execution
+                .FirstOrDefault();  // now in memory, safe*/
+      
+
 
             if (question == null)
                 return null;

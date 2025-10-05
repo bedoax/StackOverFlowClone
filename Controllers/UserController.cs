@@ -177,7 +177,7 @@ public class UserController : ControllerBase
             return NotFound(new { error = "User not found" });
         var token = await _tokenService.GenerateTokensAsync(userInfo);
        
-        return Ok(new { message = "OTP verified successfully \n token Access : " + token.AccessToken  + "\n RefreshToken : " + token.RefreshToken});
+        return Ok(new { message = "OTP verified successfully \n token Access : " + token.accessToken  + "\n RefreshToken : " + token.refreshToken});
     }
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)

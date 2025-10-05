@@ -24,7 +24,8 @@ public class QuestionController : ControllerBase
 
         var userid = GetUserIdFromClaims();
         var result = await _questionService.CreateQuestionAsync(dto, userid);
-        return Ok(result);
+        return Created("", result);
+
     }
 
     [HttpGet]

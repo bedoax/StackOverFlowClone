@@ -84,8 +84,8 @@ namespace StackOverFlowClone.Services.Implementations
 
             return new AuthResult
             {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
+                accessToken = accessToken,
+                refreshToken = refreshToken
             };
         }
 
