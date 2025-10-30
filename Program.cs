@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -267,10 +268,36 @@ namespace StackOverFlowClone
             builder.Services.AddHealthChecks()
                 .AddSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), name: "SQL Server");
 
-           
+
+
+
+            // 1. Add Response Compression Services
+            builder.Services.AddResponseCompression(options =>
+            {
+                // Add Brotli compression provider (often preferred) but not as widely supported
+                options.Providers.Add<BrotliCompressionProvider>();
+                // Add Gzip compression provider (widely supported)
+                options.Providers.Add<GzipCompressionProvider>();
+
+                // ⚠️ IMPORTANT: You will probably need to uncomment this for production
+                // options.EnableForHttps = true;
+            });
+
+            
+            // You can configure the compression levels, e.g.:
+            builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+            {
+                options.Level = System.IO.Compression.CompressionLevel.Fastest;
+            });
+            builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+            {
+                options.Level = System.IO.Compression.CompressionLevel.Fastest;
+            });
             var app = builder.Build();
             app.UseRateLimiter(); // Enable rate limiting
 
+
+ 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -304,6 +331,10 @@ namespace StackOverFlowClone
             app.MapHub<NotificationHub>("/hubs/notification");
             app.UseMiddleware<CustomExceptionHandlerMiddleware>();
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
+            // 2. Use the Response Compression Middleware
+            // This must come BEFORE app.MapControllers()
+            app.UseResponseCompression(); //2. Enable Response Compression Middleware
 
             // Enable authentication & authorization
             app.UseAuthentication(); 
