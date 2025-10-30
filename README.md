@@ -55,14 +55,16 @@ A simplified, scalable ASP.NET Core Web API imitating key features of StackOverf
 | ✅ Bookmarks                       | Complete     | Bookmark/unbookmark questions                   |
 | ✅ Exception Middleware            | Complete     | Custom JSON error responses + Serilog logging   |
 | ✅ Request Logging Middleware      | Complete     | Serilog file & console sinks                    |
-| 🟨 Caching                         | In Progress  | IMemoryCache for top‑popular questions          |
-| 🔲 System Notifications            | In Progress  | SignalR + DB store for mention / comment notifications |
+| ✅ Caching                         | Complete  | IMemoryCache for top‑popular questions          |
+| ✅ System Notifications            | Complete  | SignalR + DB store for mention / comment notifications |
 | 🔲 Group Chat                      | Planned      | SignalR hub for global & private chats          |
-| 🔲 Background Jobs (Hangfire)      | Partial      | Clean expired refresh tokens hourly             |
-| 🔲 Health Checks                   | Complete     | `/health` endpoint                              |
-| 🔲 Rate Limiting                   | Complete     | Fixed‑window rate limiting (100 req/min)        |
-| 🟨 File Uploads (Images)           | Complete     | `/api/upload/image` → stores under `wwwroot/uploads` |
-| 🟨 Mentions (@username) System     | Complete     | Detect mentions in comments & send notifications|
+| 🟨 Background Jobs (Hangfire)      | Partial      | Clean expired refresh tokens hourly             |
+| ✅ Health Checks                   | Complete     | `/health` endpoint                              |
+| ✅ Rate Limiting                   | Complete     | Fixed‑window rate limiting (100 req/min)        |
+| ✅ File Uploads (Images)           | Complete     | `/api/upload/image` → stores under `wwwroot/uploads` |
+| ✅ Mentions (@username) System     | Complete     | Detect mentions in comments & send notifications|
+| ✅ Response Compression            | Complete     | Response Compression using Gzip and Brotil 
+
 
 Legend: ✅ Done 🟨 Partial/In Progress 🔲 Planned
 
